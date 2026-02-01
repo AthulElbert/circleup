@@ -1,6 +1,6 @@
-# CircleUp
+ # CircleUp
 
-CircleUp is a planned real-time, topic-based video chat web app where users will create �Circles� (rooms), join live video calls, and chat around shared interests. The project is designed as a two-service system: a Go REST API for authentication and room management, and a Go WebSocket/WebRTC service for signaling and live communication. A modern React frontend will provide the UI for browsing topics, creating rooms, and joining calls.
+CircleUp is a planned real-time, topic-based video chat web app where users will create Circles (rooms), join live video calls, and chat around shared interests. The project is designed as a two-service system: a Go REST API for authentication and room management, and a Go WebSocket/WebRTC service for signaling and live communication. A modern React frontend will provide the UI for browsing topics, creating rooms, and joining calls.
 
 ## Status
 
@@ -23,11 +23,6 @@ This repository is a blueprint for a new build. The features and architecture be
 - Realtime: Go + Fiber WebSockets, Pion WebRTC, STUN/TURN support
 - Testing: Cypress (frontend), Go httptest + testify (backend)
 
-## Services and Ports (Planned)
-
-- REST API: http://localhost:8080
-- Realtime signaling/streaming: ws://localhost:8081
-- Frontend dev server: http://localhost:5173
 
 ## Planned API Surface (High Level)
 
@@ -45,7 +40,3 @@ This section will be updated once the project scaffolding is in place.
 - backend/    Go API + realtime services
 - frontend/   React UI
 - docs/       Diagrams and technical notes
-
-## Notes
-
-CircleUp is a greenfield rebuild based on an earlier proof-of-concept. The new version will prioritize clearer separation of services, a clean developer experience, and a focused MVP feature set.
