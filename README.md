@@ -21,12 +21,11 @@ CircleUp is a planned real-time, topic-based video chat web app where users will
 - Community organizers running interest-based meetups
 - Friend groups looking for quick, private hangouts
 
-## Architecture Overview
+## Architecture Overview (Planned
 
-- Frontend: Vite + React, Redux Toolkit, React Router, Tailwind CSS, shadcn/ui
-- Backend API: Go + Chi, GORM, PostgreSQL
-- Realtime: Go + Fiber WebSockets, Pion WebRTC, STUN/TURN support
-- Testing: Cypress (frontend), Go httptest + testify (backend)
+- Frontend: React (Vite) + Tailwind
+- Backend: Go (REST API + realtime WebSockets/WebRTC)
+- Data: PostgreSQL
 
 ## Planned API Surface (High Level)
 
