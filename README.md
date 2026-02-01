@@ -14,6 +14,13 @@ CircleUp is a planned real-time, topic-based video chat web app where users will
 - Host moderation controls (mute or remove participants)
 - Explicit in-call mic/camera toggles
 
+## Target Users
+
+- Students and study groups coordinating topic-focused sessions
+- Remote teams hosting lightweight discussion circles
+- Community organizers running interest-based meetups
+- Friend groups looking for quick, private hangouts
+
 ## Architecture Overview
 
 - Frontend: Vite + React, Redux Toolkit, React Router, Tailwind CSS, shadcn/ui
