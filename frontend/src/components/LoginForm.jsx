@@ -1,16 +1,27 @@
-﻿import { useDispatch } from "react-redux";
+﻿import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { setToken } from "../store/authSlice.js";
 import { isEmail } from "../lib/validators.js";
 
 export default function LoginForm() {
   const dispatch = useDispatch();
+  const [error, setError] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
     const email = e.target.email.value.trim();
     const password = e.target.password.value;
-    if (!isEmail(email)) return alert("Invalid email");
-    if (!password) return alert("Password required");
+
+    if (!isEmail(email)) {
+      setError("Invalid email address");
+      return;
+    }
+    if (!password) {
+      setError("Password required");
+      return;
+    }
+
+    setError("");
     dispatch(setToken("demo-token"));
   }
 
@@ -24,6 +35,7 @@ export default function LoginForm() {
           placeholder="you@circleup.com"
         />
       </label>
+
       <label className="grid gap-2 text-sm">
         <span className="text-white/70">Password</span>
         <input
@@ -33,7 +45,12 @@ export default function LoginForm() {
           placeholder="••••••••"
         />
       </label>
-      <button className="mt-2 px-3 py-2 rounded bg-emerald-500 text-black font-medium">Sign in</button>
+
+      {error && <p className="text-red-400 text-sm">{error}</p>}
+
+      <button className="mt-2 px-3 py-2 rounded bg-emerald-500 text-black font-medium">
+        Sign in
+      </button>
       <p className="text-xs text-white/50">Use any credentials for this sprint demo.</p>
     </form>
   );
