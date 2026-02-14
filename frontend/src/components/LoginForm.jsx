@@ -2,27 +2,36 @@
 import { useDispatch } from "react-redux";
 import { setToken } from "../store/authSlice.js";
 import { isEmail } from "../lib/validators.js";
+import { apiRequest } from "../lib/api.js";
 
 export default function LoginForm() {
   const dispatch = useDispatch();
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     const email = e.target.email.value.trim();
     const password = e.target.password.value;
 
-    if (!isEmail(email)) {
-      setError("Invalid email address");
-      return;
-    }
-    if (!password) {
-      setError("Password required");
-      return;
-    }
+    if (!isEmail(email)) return setError("Invalid email address");
+    if (!password) return setError("Password required");
 
-    setError("");
-    dispatch(setToken("demo-token"));
+    try {
+      setLoading(true);
+      setError("");
+
+      await apiRequest("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password })
+      });
+
+      dispatch(setToken("demo-token"));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -31,6 +40,7 @@ export default function LoginForm() {
         <span className="text-white/70">Email</span>
         <input
           name="email"
+          type="email"
           className="px-3 py-2 rounded bg-white/10 border border-white/10 focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
           placeholder="you@circleup.com"
         />
@@ -48,10 +58,16 @@ export default function LoginForm() {
 
       {error && <p className="text-red-400 text-sm">{error}</p>}
 
-      <button className="mt-2 px-3 py-2 rounded bg-emerald-500 text-black font-medium">
-        Sign in
+      <button
+        disabled={loading}
+        className="mt-2 px-3 py-2 rounded bg-emerald-500 text-black font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {loading ? "Signing in..." : "Sign in"}
       </button>
-      <p className="text-xs text-white/50">Use any credentials for this sprint demo.</p>
+
+      <p className="text-xs text-white/50">
+        Use any credentials for this sprint demo.
+      </p>
     </form>
   );
 }
