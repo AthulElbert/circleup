@@ -9,15 +9,15 @@ import (
 	"circleup/internal/store"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimw "github.com/go-chi/chi/v5/middleware"
 )
 
 func NewServer(cfg config.Config, st *store.MemoryStore) *http.Server {
 	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	r.Use(chimw.RequestID)
+	r.Use(chimw.RealIP)
+	r.Use(chimw.Logger)
+	r.Use(chimw.Recoverer)
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
