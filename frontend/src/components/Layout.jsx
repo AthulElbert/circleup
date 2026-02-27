@@ -6,9 +6,11 @@
           <h1 className="text-xl font-semibold tracking-tight">CircleUp</h1>
           <nav className="flex items-center gap-4 text-sm text-white/70">
             <a className="hover:text-white" href="/">Home</a>
+            <a className="hover:text-white" href="/topics">Topics</a>
+            <a className="hover:text-white" href="/rooms">Rooms</a>
+            <a className="hover:text-white" href="/rooms/create">Create Room</a>
+            <a className="hover:text-white" href="/rooms/join">Join Invite</a>
             <a className="hover:text-white" href="/login">Login</a>
-            <a className="hover:text-white" href="/signup">Sign up</a>
-            <a className="hover:text-white" href="/verify">Verify OTP</a>
           </nav>
         </div>
       </header>
