@@ -1,11 +1,13 @@
 ﻿import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { setToken } from "../store/authSlice.js";
 import { isEmail } from "../lib/validators.js";
 import { apiRequest } from "../lib/api.js";
 
 export default function LoginForm() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -21,12 +23,17 @@ export default function LoginForm() {
       setLoading(true);
       setError("");
 
-      await apiRequest("/auth/login", {
+      const response = await apiRequest("/auth/login", {
         method: "POST",
         body: JSON.stringify({ email, password })
       });
 
-      dispatch(setToken("demo-token"));
+      if (!response?.token) {
+        throw new Error("Token missing in login response");
+      }
+
+      dispatch(setToken(response.token));
+      navigate("/topics");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -66,7 +73,7 @@ export default function LoginForm() {
       </button>
 
       <p className="text-xs text-white/50">
-        Use any credentials for this sprint demo.
+        Uses backend JWT token on successful login.
       </p>
     </form>
   );

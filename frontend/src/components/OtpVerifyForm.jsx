@@ -1,11 +1,12 @@
 ﻿import { useState } from "react";
 import { isEmail } from "../lib/validators.js";
+import { apiRequest } from "../lib/api.js";
 
 export default function OtpVerifyForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setSuccess(false);
 
@@ -17,8 +18,16 @@ export default function OtpVerifyForm() {
     if (!otp) return setError("OTP required");
     if (!password) return setError("Password required");
 
-    setError("");
-    setSuccess(true); // mock success
+    try {
+      setError("");
+      await apiRequest("/auth/verify-otp", {
+        method: "POST",
+        body: JSON.stringify({ email, otp, password })
+      });
+      setSuccess(true);
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   return (
@@ -53,19 +62,11 @@ export default function OtpVerifyForm() {
       </label>
 
       {error && <p className="text-red-400 text-sm">{error}</p>}
-      {success && (
-        <p className="text-emerald-300 text-sm">
-          OTP verified (mock). Account activated.
-        </p>
-      )}
+      {success && <p className="text-emerald-300 text-sm">OTP verified. Account activated.</p>}
 
-      <button className="mt-2 px-3 py-2 rounded bg-emerald-500 text-black font-medium">
-        Verify
-      </button>
+      <button className="mt-2 px-3 py-2 rounded bg-emerald-500 text-black font-medium">Verify</button>
 
-      <p className="text-xs text-white/50">
-        Use the code from your email to activate the account.
-      </p>
+      <p className="text-xs text-white/50">Use the code from your email to activate the account.</p>
     </form>
   );
 }

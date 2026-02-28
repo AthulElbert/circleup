@@ -5,6 +5,7 @@ import { apiRequest } from "../lib/api.js";
 export default function SignupForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -15,13 +16,14 @@ export default function SignupForm() {
     try {
       setLoading(true);
       setError("");
+      setMessage("");
 
-      await apiRequest("/auth/signup", {
+      await apiRequest("/auth/request-otp", {
         method: "POST",
         body: JSON.stringify({ email })
       });
 
-      alert("OTP requested (mock)");
+      setMessage("OTP sent successfully.");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -42,6 +44,7 @@ export default function SignupForm() {
       </label>
 
       {error && <p className="text-red-400 text-sm">{error}</p>}
+      {message && <p className="text-emerald-300 text-sm">{message}</p>}
 
       <button
         disabled={loading}
@@ -50,9 +53,7 @@ export default function SignupForm() {
         {loading ? "Requesting..." : "Request OTP"}
       </button>
 
-      <p className="text-xs text-white/50">
-        We’ll send a 6-digit code to this email.
-      </p>
+      <p className="text-xs text-white/50">We will send a 6-digit code to this email.</p>
     </form>
   );
 }
