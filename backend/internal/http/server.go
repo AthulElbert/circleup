@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
 func NewServer(cfg config.Config, st *store.MemoryStore) *http.Server {
@@ -18,6 +19,13 @@ func NewServer(cfg config.Config, st *store.MemoryStore) *http.Server {
 	r.Use(chimw.RealIP)
 	r.Use(chimw.Logger)
 	r.Use(chimw.Recoverer)
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173", "http://127.0.0.1:5173"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -36,10 +44,23 @@ func NewServer(cfg config.Config, st *store.MemoryStore) *http.Server {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("ok"))
 		})
+
+		r.Route("/topics", func(r chi.Router) {
+			r.Post("/", handlers.CreateTopic(st))
+			r.Get("/", handlers.ListTopics(st))
+		})
+
+		r.Route("/rooms", func(r chi.Router) {
+			r.Post("/", handlers.CreateRoom(st))
+			r.Get("/", handlers.ListRooms(st))
+			r.Get("/{roomID}", handlers.GetRoomByID(st))
+		})
+
+		r.Route("/invites", func(r chi.Router) {
+			r.Post("/generate", handlers.GenerateInvite(st))
+			r.Post("/join", handlers.JoinWithInvite(st))
+		})
 	})
 
-	return &http.Server{
-		Addr:    cfg.Addr,
-		Handler: r,
-	}
+	return &http.Server{Addr: cfg.Addr, Handler: r}
 }
