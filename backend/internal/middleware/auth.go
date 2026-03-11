@@ -1,6 +1,7 @@
 ﻿package middleware
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
@@ -16,14 +17,20 @@ func Auth(secret string) func(http.Handler) http.Handler {
 				return
 			}
 			tokenStr := strings.TrimPrefix(bearer, "Bearer ")
-			_, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
+			token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
 				return []byte(secret), nil
 			})
-			if err != nil {
+			if err != nil || !token.Valid {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
-			next.ServeHTTP(w, r)
+			claims, ok := token.Claims.(jwt.MapClaims)
+			if !ok {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			ctx := context.WithValue(r.Context(), "claims", claims)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
