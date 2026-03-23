@@ -1,4 +1,4 @@
-﻿import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { clearToken, selectCurrentUser, selectIsAuthed } from "../store/authSlice.js";
 
 export default function Layout({ children }) {
