@@ -1,4 +1,4 @@
-﻿export default function RoomList({
+export default function RoomList({
   rooms,
   topicNames,
   onGenerateInvite,
