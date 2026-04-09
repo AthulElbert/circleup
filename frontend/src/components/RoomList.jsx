@@ -21,12 +21,18 @@ export default function RoomList({
           <p className="text-sm text-white/70">Topic: {topicNames[room.topicId] || room.topicId}</p>
           <p className="text-sm text-white/70">Visibility: {room.visibility}</p>
           {room.inviteCode ? <p className="text-sm text-emerald-300">Invite: {room.inviteCode}</p> : null}
-          <div className="mt-3 flex items-center gap-3">
+          <div className="mt-3 flex flex-wrap items-center gap-3">
             <a
               href={`/rooms/${room.id}`}
               className="inline-block text-sm text-sky-300 hover:text-sky-200"
             >
               View details
+            </a>
+            <a
+              href={`/rooms/${room.id}/live`}
+              className="inline-block text-sm text-amber-300 hover:text-amber-200"
+            >
+              Join live room
             </a>
             {room.visibility === "private" ? (
               <button

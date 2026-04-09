@@ -10,6 +10,7 @@ import Rooms from "./pages/Rooms.jsx";
 import CreateRoom from "./pages/CreateRoom.jsx";
 import JoinInvite from "./pages/JoinInvite.jsx";
 import RoomDetails from "./pages/RoomDetails.jsx";
+import RoomLive from "./pages/RoomLive.jsx";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/topics" element={<AuthGate><Topics /></AuthGate>} />
         <Route path="/rooms" element={<AuthGate><Rooms /></AuthGate>} />
         <Route path="/rooms/:roomId" element={<AuthGate><RoomDetails /></AuthGate>} />
+        <Route path="/rooms/:roomId/live" element={<AuthGate><RoomLive /></AuthGate>} />
         <Route path="/rooms/create" element={<AuthGate><CreateRoom /></AuthGate>} />
         <Route path="/rooms/join" element={<AuthGate><JoinInvite /></AuthGate>} />
         <Route path="/protected" element={<AuthGate><div>Protected content</div></AuthGate>} />

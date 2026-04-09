@@ -49,9 +49,17 @@ export default function RoomDetails() {
 
   return (
     <section className="grid gap-6">
-      <div>
-        <h2 className="text-2xl font-semibold">{room.title}</h2>
-        <p className="text-white/70">Detailed view for this circle.</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold">{room.title}</h2>
+          <p className="text-white/70">Detailed view for this circle.</p>
+        </div>
+        <a
+          href={`/rooms/${room.id}/live`}
+          className="rounded bg-amber-400 px-4 py-2 text-sm font-medium text-black"
+        >
+          Open live room
+        </a>
       </div>
 
       <div className="grid gap-4 rounded-2xl border border-white/10 bg-white/5 p-6">
