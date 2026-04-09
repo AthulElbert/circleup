@@ -1,4 +1,5 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const WS_BASE = import.meta.env.VITE_WS_BASE_URL || API_BASE.replace(/^http/, "ws");
 
 export async function apiRequest(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -18,6 +19,10 @@ export async function apiRequest(path, options = {}) {
 
 export function authHeaders(token) {
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export function buildRoomSocketUrl(roomId, token) {
+  return `${WS_BASE}/ws/rooms/${roomId}?token=${encodeURIComponent(token)}`;
 }
 
 export function listTopics(token) {
