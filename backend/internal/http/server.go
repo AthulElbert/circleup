@@ -1,4 +1,4 @@
-﻿package http
+package http
 
 import (
 	"net/http"
@@ -6,6 +6,7 @@ import (
 	"circleup/internal/config"
 	"circleup/internal/handlers"
 	"circleup/internal/middleware"
+	"circleup/internal/realtime"
 	"circleup/internal/store"
 
 	"github.com/go-chi/chi/v5"
@@ -14,13 +15,14 @@ import (
 )
 
 func NewServer(cfg config.Config, st *store.MemoryStore) *http.Server {
+	hub := realtime.NewHub()
 	r := chi.NewRouter()
 	r.Use(chimw.RequestID)
 	r.Use(chimw.RealIP)
 	r.Use(chimw.Logger)
 	r.Use(chimw.Recoverer)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173", "http://127.0.0.1:5173"},
+		AllowedOrigins:   cfg.AllowedOrigins,
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true,
@@ -37,6 +39,8 @@ func NewServer(cfg config.Config, st *store.MemoryStore) *http.Server {
 		r.Post("/verify-otp", handlers.VerifyOTP(st, cfg.JWTSecret))
 		r.Post("/login", handlers.Login(st, cfg.JWTSecret))
 	})
+
+	r.Get("/ws/rooms/{roomID}", handlers.RoomRealtime(hub, st, cfg.JWTSecret))
 
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Auth(cfg.JWTSecret))
