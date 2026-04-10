@@ -1,40 +1,50 @@
-# CircleUp Backend
+ # CircleUp
 
-## Current Scope
+## Project Description
+CircleUp is a planned real-time, topic-based video chat web app where users will create Circles (rooms), join live video calls, and chat around shared interests. The project is designed as a two-service system: a Go REST API for authentication and room management, and a Go WebSocket/WebRTC service for signaling and live communication. A modern React frontend will provide the UI for browsing topics, creating rooms, and joining calls.
 
-- REST API for auth, topics, rooms, and invites
-- websocket room endpoint for presence, chat, and WebRTC signaling
-- in-memory store for local sprint demos
 
-## Run Locally
+## Core Features (Planned)
 
-```powershell
-cd C:\Personal_projects\testsprint2\circleup\backend
-$env:API_ADDR="0.0.0.0:8080"
-$env:JWT_SECRET="dev-secret"
-$env:DEV_OTP="true"
-$env:ALLOWED_ORIGINS="http://*,https://*"
-go run ./cmd/api
-```
+- Topic-based rooms (Circles) with a single assigned topic
+- Public or private rooms with shareable invite codes
+- OTP signup flow and email/password login
+- Real-time video and audio via WebRTC
+- WebSocket-based group chat per room
+- Host moderation controls (mute or remove participants)
+- Explicit in-call mic/camera toggles
 
-## LAN / Multi-Laptop Testing
+## Target Users
 
-- Bind the API to `0.0.0.0:8080`
-- Set `ALLOWED_ORIGINS` wide enough for the frontend host, for example `http://*,https://*`
-- Share the host laptop IP with all client laptops
-- The websocket endpoint is served from the same backend:
-  - `ws://<HOST_IP>:8080/ws/rooms/{roomID}?token=<jwt>`
+- Students and study groups coordinating topic-focused sessions
+- Remote teams hosting lightweight discussion circles
+- Community organizers running interest-based meetups
+- Friend groups looking for quick, private hangouts
 
-## Key Environment Variables
+## Architecture Overview (Planned)
 
-- `API_ADDR` - backend bind address, use `0.0.0.0:8080` for LAN
-- `JWT_SECRET` - JWT signing secret
-- `DEV_OTP` - returns OTP in signup response for local demos
-- `ALLOWED_ORIGINS` - comma-separated CORS allowlist
+- Frontend: React (Vite) + Tailwind
+- Backend: Go (REST API + realtime WebSockets/WebRTC)
+- Data: PostgreSQL
 
-## Test
+## Planned API Surface (High Level)
 
-```powershell
-cd C:\Personal_projects\testsprint2\circleup\backend
-go test ./...
-```
+- Auth: request OTP, verify OTP, login
+- Topics: create and list topics
+- Rooms: create, list, fetch by ID
+- User preferences: set and get topic preferences
+
+## Setup (To Be Implemented)
+
+This section will be updated once the project scaffolding is in place.
+
+## Repository Structure (Planned)
+
+- backend/    Go API + realtime services
+- frontend/   React UI
+- docs/       Diagrams and technical notes
+
+## Members
+
+- front-end engineers : Balaji Jonnalagadda, Ramcharan Reddy Mannam
+- back-end engineers : Athul Oscar Ronaldo Elbert, Sona Maria Jose

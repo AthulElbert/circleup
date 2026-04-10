@@ -1,14 +1,40 @@
-﻿# BE1 Sprint 1
+# CircleUp Backend
 
-Contains the Go API scaffold, config, and database migrations. Routes are wired to auth handlers added in BE2.
+## Current Scope
 
-# BE2 Sprint 1
+- REST API for auth, topics, rooms, and invites
+- websocket room endpoint for presence, chat, and WebRTC signaling
+- in-memory store for local sprint demos
 
-Adds auth handlers, JWT middleware, in-memory store, and unit tests.
+## Run Locally
 
-## Dev OTP
+```powershell
+cd C:\Personal_projects\testsprint2\circleup\backend
+$env:API_ADDR="0.0.0.0:8080"
+$env:JWT_SECRET="dev-secret"
+$env:DEV_OTP="true"
+$env:ALLOWED_ORIGINS="http://*,https://*"
+go run ./cmd/api
+```
 
-Set DEV_OTP=true when running the API to include the OTP in the response for local testing.
+## LAN / Multi-Laptop Testing
 
-# BE1 Sprint 2
-Owns backend scaffold, models/store, topics and rooms handlers, and route wiring.
+- Bind the API to `0.0.0.0:8080`
+- Set `ALLOWED_ORIGINS` wide enough for the frontend host, for example `http://*,https://*`
+- Share the host laptop IP with all client laptops
+- The websocket endpoint is served from the same backend:
+  - `ws://<HOST_IP>:8080/ws/rooms/{roomID}?token=<jwt>`
+
+## Key Environment Variables
+
+- `API_ADDR` - backend bind address, use `0.0.0.0:8080` for LAN
+- `JWT_SECRET` - JWT signing secret
+- `DEV_OTP` - returns OTP in signup response for local demos
+- `ALLOWED_ORIGINS` - comma-separated CORS allowlist
+
+## Test
+
+```powershell
+cd C:\Personal_projects\testsprint2\circleup\backend
+go test ./...
+```
