@@ -1,5 +1,97 @@
 ﻿# Sprint 3 Report - CircleUp
 
+## Sprint Goal
+
+Deliver a working realtime collaboration layer for CircleUp where multiple users can join the same room and interact through:
+- live room presence
+- realtime room chat
+- microphone and camera state updates
+- WebRTC signaling for peer connection setup
+- LAN-friendly multi-laptop testing support
+- stronger frontend and backend automated test coverage
+
+Sprint window: 2 weeks
+Team: Balaji, Ramcharan, Athul, Sona
+
+## Team Ownership
+
+### Balaji
+- Built the live room frontend experience
+- Added live-room navigation from rooms and room details
+- Implemented room-level realtime UI including participant list and chat layout
+- Added clearer live room state messaging and reconnect UX
+
+### Ramcharan
+- Added frontend helper logic for live room state and WebRTC support
+- Added device selection support for microphone and camera
+- Added STUN/TURN configuration support in frontend
+- Added frontend unit tests and Cypress coverage for Sprint 3 flows
+
+### Athul
+- Implemented backend websocket handler support for realtime rooms
+- Added signaling validation and relay behavior for WebRTC messages
+- Added backend realtime handler tests
+- Verified backend API behavior used by the Sprint 3 frontend
+
+### Sona
+- Implemented backend room hub behavior for presence, chat, media updates, and signaling relay
+- Added backend realtime hub tests
+- Added backend config/runtime support for LAN and cross-device testing
+- Updated backend documentation for Sprint 3 realtime usage
+
+## User Stories
+
+- As a user, I want to enter a live room from the rooms list so I can participate in realtime discussions.
+- As a user, I want to see who is currently present in a room.
+- As a user, I want to send and receive room chat messages in real time.
+- As a user, I want to toggle my microphone and camera and have that state reflected in the room.
+- As a user, I want my browser to negotiate a WebRTC connection with other participants.
+- As a user, I want the room to recover gracefully if the realtime connection drops.
+- As a user, I want to select different media devices if needed.
+- As a developer, I want STUN/TURN configuration support so realtime connectivity is more reliable.
+- As a developer, I want frontend and backend tests for the Sprint 3 realtime layer.
+- As a developer, I want updated backend API documentation for the websocket-based realtime functionality.
+
+## Planned Issues (with Owner)
+
+- FE-1 (Balaji): Add live room page and route integration.
+- FE-2 (Balaji): Add participant presence UI and chat panel.
+- FE-3 (Balaji): Add live-room entry actions from rooms list and room details.
+- FE-4 (Balaji): Add reconnect messaging and clearer call-state UI.
+
+- FE-5 (Ramcharan): Add live-room helper/state logic for connection and participant behavior.
+- FE-6 (Ramcharan): Add device selection for microphone and camera.
+- FE-7 (Ramcharan): Add STUN/TURN config support in frontend.
+- FE-8 (Ramcharan): Add frontend unit tests for live-room and WebRTC helpers.
+- FE-9 (Ramcharan): Add Cypress coverage for live-room entry and chat.
+
+- BE-1 (Athul): Add websocket room handler for Sprint 3 realtime flow.
+- BE-2 (Athul): Add WebRTC signaling relay support for offer, answer, and ICE.
+- BE-3 (Athul): Add backend tests for realtime auth, room validation, and signaling rules.
+
+- BE-4 (Sona): Add realtime room hub for participant management and chat broadcast.
+- BE-5 (Sona): Add backend tests for room hub join, leave, media updates, and signal targeting.
+- BE-6 (Sona): Add LAN-friendly backend config/runtime support for multi-laptop testing.
+
+- TEAM-1 (Entire Team): Integrate frontend live-room UI with backend websocket room endpoint.
+- TEAM-2 (Entire Team): Update backend API documentation for Sprint 3 realtime functionality.
+
+## Completion Status
+
+### Completed
+
+- FE-1, FE-2, FE-3, FE-4
+  - Result: Sprint 3 live-room UI, room entry, and reconnect/call-state experience are implemented and demo-ready.
+
+- FE-5, FE-6, FE-7, FE-8, FE-9
+  - Result: Frontend helper logic, device/STUN-TURN support, and automated frontend coverage are in place.
+
+- BE-1, BE-2, BE-3, BE-4, BE-5, BE-6
+  - Result: Backend websocket realtime infrastructure and backend test coverage support the Sprint 3 live-room flow.
+
+- TEAM-1, TEAM-2
+  - Result: Frontend and backend are integrated for Sprint 3 realtime behavior, and the backend API documentation is updated in this report.
+
 ## Detail Work Completed in Sprint 3
 
 Sprint 3 focused on turning CircleUp from a room-management application into a working realtime collaboration experience.
@@ -57,6 +149,22 @@ Sprint 3 focused on turning CircleUp from a room-management application into a w
   - signaling exchange
   - media state updates
 - Updated project documentation for LAN and STUN/TURN-based testing.
+
+## Evidence of Completion
+
+### Frontend
+- Users can navigate from rooms into a live room screen.
+- Live room screen shows participant list, chat, local preview, and remote participant tiles.
+- Live room shows call-state messaging and reconnect feedback.
+- Microphone and camera state toggles are exposed in the UI.
+- Device selection is exposed in the UI for microphone and camera.
+- Frontend unit tests and Cypress tests cover Sprint 3 live-room behavior.
+
+### Backend
+- Backend exposes a realtime websocket endpoint at `GET /ws/rooms/{roomID}?token=<jwt>`.
+- Backend relays room presence, chat, media-state updates, and signaling messages.
+- Backend validates room existence and JWT authentication before joining the realtime room.
+- Backend unit tests cover realtime room hub logic and realtime handler validation logic.
 
 ## Frontend Unit Tests
 
@@ -426,3 +534,36 @@ Example payload:
   "payload": { "type": "offer", "sdp": "..." }
 }
 ```
+
+## Planned But Not Completed
+
+- HTTPS-based local dev hosting for trusted camera/microphone access across LAN devices.
+  - Why: Sprint 3 validated signaling, presence, and chat on LAN, but secure-origin media hosting still needs additional setup.
+
+- Frontend unit tests are not at a 1:1 ratio with every live-room function and component.
+  - Why: Sprint effort focused on critical live-room helper logic and realtime path coverage.
+
+- Backend unit tests are not at a 1:1 ratio with every realtime helper and handler branch.
+  - Why: Sprint effort prioritized the core signaling, room validation, and hub behavior paths.
+
+- Cypress coverage does not yet include a full two-user live media workflow.
+  - Why: Cypress coverage stayed focused on deterministic UI-level realtime entry and chat flows.
+
+## Branch/Folders Delivered In Sprint 3
+
+- `circleup/balajiSprint3`
+- `circleup/ramSprint3`
+- `circleup/athulSprint3`
+- `circleup/sonaSprint3`
+- `circleup/main` (merged, runnable snapshot)
+
+## Demo Readiness Checklist
+
+- Frontend and backend run together for Sprint 3 realtime behavior.
+- Live room route is accessible from rooms and room details.
+- Realtime participant presence is visible.
+- Realtime room chat is visible.
+- WebRTC signaling route is integrated through the websocket room endpoint.
+- Backend tests pass with `go test ./...`.
+- Frontend unit tests pass with `npm test`.
+- Cypress tests pass with `npm run cypress:run`.
