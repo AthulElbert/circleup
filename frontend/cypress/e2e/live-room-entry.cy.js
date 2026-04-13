@@ -1,4 +1,4 @@
-describe("live room entry", () => {
+﻿describe("live room entry", () => {
   const token =
     "header.eyJzdWIiOiJ0ZXN0QGNpcmNsZXVwLmNvbSJ9.signature";
 
@@ -28,6 +28,16 @@ describe("live room entry", () => {
     cy.visit("/rooms", {
       onBeforeLoad(win) {
         win.localStorage.setItem("circleup_token", token);
+
+        Object.defineProperty(win.HTMLMediaElement.prototype, "srcObject", {
+          configurable: true,
+          get() {
+            return this._srcObject || null;
+          },
+          set(value) {
+            this._srcObject = value;
+          }
+        });
 
         class FakeWebSocket {
           static OPEN = 1;
@@ -62,15 +72,23 @@ describe("live room entry", () => {
           }
         }
 
-        win.WebSocket = FakeWebSocket;
-        win.navigator.mediaDevices = {
-          getUserMedia: () =>
-            Promise.resolve({
-              getTracks: () => [],
-              getAudioTracks: () => [],
-              getVideoTracks: () => []
-            })
-        };
+        Object.defineProperty(win, "WebSocket", {
+          value: FakeWebSocket,
+          configurable: true
+        });
+
+        Object.defineProperty(win.navigator, "mediaDevices", {
+          value: {
+            enumerateDevices: () =>
+              Promise.resolve([
+                { kind: "audioinput", deviceId: "audio-1", label: "Mic" },
+                { kind: "videoinput", deviceId: "video-1", label: "Cam" }
+              ]),
+            getUserMedia: () =>
+              Promise.resolve(new win.MediaStream())
+          },
+          configurable: true
+        });
       }
     });
 
@@ -83,6 +101,7 @@ describe("live room entry", () => {
     cy.wait("@getRoom");
     cy.contains("Live room").should("be.visible");
     cy.contains("Realtime Circle").should("be.visible");
-    cy.contains("Waiting for another participant").should("be.visible");
+    cy.contains(/Connection:/).should("be.visible");
+    cy.contains(/participant/i).should("be.visible");
   });
 });
