@@ -17,21 +17,14 @@ import (
 
 func TestEmailFromToken(t *testing.T) {
 	secret := "secret"
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": "alice@circleup.com",
-		"exp": time.Now().Add(time.Hour).Unix(),
-	})
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"sub": "alice@circleup.com", "exp": time.Now().Add(time.Hour).Unix()})
 	signed, err := token.SignedString([]byte(secret))
 	if err != nil {
 		t.Fatalf("sign token: %v", err)
 	}
-
 	email, err := emailFromToken(url.Values{"token": []string{signed}}, secret)
-	if err != nil {
-		t.Fatalf("expected token parse to succeed: %v", err)
-	}
-	if email != "alice@circleup.com" {
-		t.Fatalf("expected alice email, got %q", email)
+	if err != nil || email != "alice@circleup.com" {
+		t.Fatalf("expected token parse to succeed, got %q / %v", email, err)
 	}
 }
 
@@ -43,9 +36,7 @@ func TestRoomRealtimeRequiresExistingRoom(t *testing.T) {
 	routeCtx.URLParams.Add("roomID", "room_404")
 	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, routeCtx))
 	rw := httptest.NewRecorder()
-
 	RoomRealtime(hub, st, "secret").ServeHTTP(rw, req)
-
 	if rw.Code != http.StatusNotFound {
 		t.Fatalf("expected 404, got %d", rw.Code)
 	}
@@ -56,15 +47,12 @@ func TestRoomRealtimeRequiresValidToken(t *testing.T) {
 	topic := st.CreateTopic("Systems")
 	room := st.CreateRoom("Architecture", topic.ID, "public", "owner@circleup.com")
 	hub := realtime.NewHub()
-
 	req := httptest.NewRequest(http.MethodGet, "/ws/rooms/"+room.ID, nil)
 	routeCtx := chi.NewRouteContext()
 	routeCtx.URLParams.Add("roomID", room.ID)
 	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, routeCtx))
 	rw := httptest.NewRecorder()
-
 	RoomRealtime(hub, st, "secret").ServeHTTP(rw, req)
-
 	if rw.Code != http.StatusUnauthorized {
 		t.Fatalf("expected 401, got %d", rw.Code)
 	}
@@ -76,10 +64,23 @@ func TestAllowedSignalKinds(t *testing.T) {
 			t.Fatalf("expected %s to be allowed", kind)
 		}
 	}
-
 	for _, kind := range []string{"", "presence", "chat", "candidate"} {
 		if isAllowedSignalKind(kind) {
 			t.Fatalf("expected %s to be rejected", kind)
 		}
+	}
+}
+
+
+func TestEmailFromTokenRejectsMissingSubject(t *testing.T) {
+	secret := "secret"
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"sub": "", "exp": time.Now().Add(time.Hour).Unix()})
+	signed, err := token.SignedString([]byte(secret))
+	if err != nil {
+		t.Fatalf("sign token: %v", err)
+	}
+	_, err = emailFromToken(url.Values{"token": []string{signed}}, secret)
+	if err == nil {
+		t.Fatal("expected token parse to fail when subject is empty")
 	}
 }
