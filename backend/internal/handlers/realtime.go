@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"circleup/internal/realtime"
 	"circleup/internal/store"
@@ -18,42 +19,43 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-func RoomRealtime(hub *realtime.Hub, st *store.MemoryStore, secret string) http.HandlerFunc {
+func RoomRealtime(hub *realtime.Hub, st store.Store, secret string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		roomID := chi.URLParam(r, "roomID")
 		if roomID == "" {
 			http.Error(w, "room id required", http.StatusBadRequest)
 			return
 		}
-		if _, err := st.GetRoom(roomID); err != nil {
+		room, err := st.GetRoom(roomID)
+		if err != nil {
 			http.Error(w, "room not found", http.StatusNotFound)
 			return
 		}
-
 		email, err := emailFromToken(r.URL.Query(), secret)
 		if err != nil {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
-
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			return
 		}
 		defer conn.Close()
-
-		participant, snapshot, events := hub.Join(roomID, email)
+		participant, snapshot, events := hub.Join(roomID, email, room.OwnerEmail == email)
 		defer hub.Leave(roomID, email)
-
 		if err := conn.WriteJSON(realtime.Event{Type: "snapshot", Snapshot: &snapshot}); err != nil {
 			return
 		}
-
 		done := make(chan struct{})
 		go func() {
 			defer close(done)
 			for event := range events {
 				if err := conn.WriteJSON(event); err != nil {
+					return
+				}
+				if event.Type == "moderation" && event.Action == "kicked" && event.Participant != nil && event.Participant.Email == email {
+					_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "removed by host"), time.Now().Add(time.Second))
+					_ = conn.Close()
 					return
 				}
 			}
@@ -62,6 +64,7 @@ func RoomRealtime(hub *realtime.Hub, st *store.MemoryStore, secret string) http.
 		for {
 			var msg struct {
 				Type    string          `json:"type"`
+				Action  string          `json:"action"`
 				Body    string          `json:"body"`
 				MicOn   *bool           `json:"micOn"`
 				CamOn   *bool           `json:"camOn"`
@@ -69,11 +72,9 @@ func RoomRealtime(hub *realtime.Hub, st *store.MemoryStore, secret string) http.
 				Kind    string          `json:"kind"`
 				Payload json.RawMessage `json:"payload"`
 			}
-
 			if err := conn.ReadJSON(&msg); err != nil {
 				return
 			}
-
 			switch msg.Type {
 			case "chat":
 				body := strings.TrimSpace(msg.Body)
@@ -102,9 +103,58 @@ func RoomRealtime(hub *realtime.Hub, st *store.MemoryStore, secret string) http.
 					continue
 				}
 				hub.RelaySignal(roomID, email, msg.ToEmail, msg.Kind, msg.Payload)
-			default:
+			case "moderation":
+				target := strings.TrimSpace(msg.ToEmail)
+				if target == "" {
+					continue
+				}
+				switch msg.Action {
+				case "mute":
+					updated, ok, reason := hub.MuteParticipant(roomID, email, target)
+					if !ok {
+						_ = conn.WriteJSON(realtime.Event{Type: "error", Error: reason})
+						continue
+					}
+					if target == participant.Email {
+						participant = updated
+					}
+				case "unmute":
+					updated, ok, reason := hub.UnmuteParticipant(roomID, email, target)
+					if !ok {
+						_ = conn.WriteJSON(realtime.Event{Type: "error", Error: reason})
+						continue
+					}
+					if target == participant.Email {
+						participant = updated
+					}
+				case "kick":
+					_, ok, reason := hub.KickParticipant(roomID, email, target)
+					if !ok {
+						_ = conn.WriteJSON(realtime.Event{Type: "error", Error: reason})
+						continue
+					}
+				case "promote":
+					updated, ok, reason := hub.UpdateRole(roomID, email, target, "co-host")
+					if !ok {
+						_ = conn.WriteJSON(realtime.Event{Type: "error", Error: reason})
+						continue
+					}
+					if target == participant.Email {
+						participant = updated
+					}
+				case "demote":
+					updated, ok, reason := hub.UpdateRole(roomID, email, target, "participant")
+					if !ok {
+						_ = conn.WriteJSON(realtime.Event{Type: "error", Error: reason})
+						continue
+					}
+					if target == participant.Email {
+						participant = updated
+					}
+				default:
+					_ = conn.WriteJSON(realtime.Event{Type: "error", Error: "unsupported moderation action"})
+				}
 			}
-
 			select {
 			case <-done:
 				return
@@ -116,9 +166,7 @@ func RoomRealtime(hub *realtime.Hub, st *store.MemoryStore, secret string) http.
 
 func emailFromToken(values url.Values, secret string) (string, error) {
 	tokenStr := values.Get("token")
-	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
-		return []byte(secret), nil
-	})
+	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) { return []byte(secret), nil })
 	if err != nil || !token.Valid {
 		return "", err
 	}
