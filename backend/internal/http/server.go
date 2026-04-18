@@ -14,7 +14,7 @@ import (
 	"github.com/go-chi/cors"
 )
 
-func NewServer(cfg config.Config, st *store.MemoryStore) *http.Server {
+func NewServer(cfg config.Config, st store.Store) *http.Server {
 	hub := realtime.NewHub()
 	r := chi.NewRouter()
 	r.Use(chimw.RequestID)
