@@ -1,19 +1,19 @@
-describe("live room chat", () => {
-  const token = "header.eyJzdWIiOiJ0ZXN0QGNpcmNsZXVwLmNvbSJ9.signature";
+describe("live room moderation", () => {
+  const token = "header.eyJzdWIiOiJob3N0QGNpcmNsZXVwLmNvbSJ9.signature";
 
-  it("sends a chat message from the live room screen", () => {
+  it("shows host controls and applies mute/remove events", () => {
     cy.viewport(900, 900);
 
     cy.intercept("GET", "http://localhost:8080/rooms/room_001", {
       id: "room_001",
-      title: "Realtime Circle",
+      title: "Moderated Circle",
       topicId: "topic_001",
-      visibility: "public",
-      ownerEmail: "test@circleup.com"
+      visibility: "private",
+      ownerEmail: "host@circleup.com"
     }).as("getRoom");
 
     cy.intercept("GET", "http://localhost:8080/topics/", [
-      { id: "topic_001", name: "WebRTC" }
+      { id: "topic_001", name: "System Design" }
     ]).as("listTopics");
 
     cy.visit("/rooms/room_001/live", {
@@ -38,8 +38,16 @@ describe("live room chat", () => {
                   snapshot: {
                     participants: [
                       {
-                        email: "test@circleup.com",
+                        email: "host@circleup.com",
                         role: "host",
+                        micOn: true,
+                        camOn: true,
+                        muted: false,
+                        joinedAt: new Date().toISOString()
+                      },
+                      {
+                        email: "guest@circleup.com",
+                        role: "participant",
                         micOn: true,
                         camOn: true,
                         muted: false,
@@ -54,16 +62,28 @@ describe("live room chat", () => {
           }
           send(payload) {
             const parsed = JSON.parse(payload);
-            if (parsed.type === "chat") {
+            if (parsed.type === "moderation" && parsed.action === "mute") {
               this.onmessage?.({
                 data: JSON.stringify({
-                  type: "chat",
-                  message: {
-                    id: "msg_001",
-                    senderEmail: "test@circleup.com",
-                    body: parsed.body,
-                    sentAt: new Date().toISOString()
+                  type: "moderation",
+                  action: "muted",
+                  participant: {
+                    email: parsed.toEmail,
+                    role: "participant",
+                    micOn: false,
+                    camOn: true,
+                    muted: true,
+                    joinedAt: new Date().toISOString()
                   }
+                })
+              });
+            }
+            if (parsed.type === "moderation" && parsed.action === "kick") {
+              this.onmessage?.({
+                data: JSON.stringify({
+                  type: "presence",
+                  action: "left",
+                  participant: { email: parsed.toEmail }
                 })
               });
             }
@@ -87,12 +107,11 @@ describe("live room chat", () => {
 
     cy.wait("@getRoom");
     cy.wait("@listTopics");
-    cy.contains("Chat (0)").click();
-    cy.get('textarea[placeholder="Type a message to everyone in this room"]')
-      .should("be.visible")
-      .type("Hello from Cypress");
-    cy.contains("Send message").click();
-    cy.contains("Hello from Cypress").should("be.visible");
-    cy.contains("test@circleup.com").should("be.visible");
+    cy.contains("Host controls enabled").should("be.visible");
+    cy.contains("guest@circleup.com").should("be.visible");
+    cy.contains("Mute").click();
+    cy.contains("Muted by host").should("be.visible");
+    cy.contains("Remove").click();
+    cy.contains("guest@circleup.com").should("not.exist");
   });
 });
