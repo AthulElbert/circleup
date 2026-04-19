@@ -10,7 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func CreateTopic(st *store.MemoryStore) http.HandlerFunc {
+func CreateTopic(st store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct { Name string `json:"name"` }
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Name == "" {
@@ -21,13 +21,13 @@ func CreateTopic(st *store.MemoryStore) http.HandlerFunc {
 	}
 }
 
-func ListTopics(st *store.MemoryStore) http.HandlerFunc {
+func ListTopics(st store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, st.ListTopics())
 	}
 }
 
-func CreateRoom(st *store.MemoryStore) http.HandlerFunc {
+func CreateRoom(st store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Title      string `json:"title"`
@@ -60,13 +60,13 @@ func CreateRoom(st *store.MemoryStore) http.HandlerFunc {
 	}
 }
 
-func ListRooms(st *store.MemoryStore) http.HandlerFunc {
+func ListRooms(st store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, st.ListRooms())
 	}
 }
 
-func GetRoomByID(st *store.MemoryStore) http.HandlerFunc {
+func GetRoomByID(st store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		room, err := st.GetRoom(chi.URLParam(r, "roomID"))
 		if err != nil {

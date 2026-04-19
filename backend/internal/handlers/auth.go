@@ -15,7 +15,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func RequestOTP(st *store.MemoryStore) http.HandlerFunc {
+func RequestOTP(st store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct{ Email string `json:"email"` }
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Email == "" {
@@ -36,7 +36,7 @@ func RequestOTP(st *store.MemoryStore) http.HandlerFunc {
 	}
 }
 
-func VerifyOTP(st *store.MemoryStore, secret string) http.HandlerFunc {
+func VerifyOTP(st store.Store, secret string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Email    string `json:"email"`
@@ -62,7 +62,7 @@ func VerifyOTP(st *store.MemoryStore, secret string) http.HandlerFunc {
 	}
 }
 
-func Login(st *store.MemoryStore, secret string) http.HandlerFunc {
+func Login(st store.Store, secret string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Email    string `json:"email"`

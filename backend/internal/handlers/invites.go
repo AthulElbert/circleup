@@ -9,7 +9,7 @@ import (
 	"circleup/internal/store"
 )
 
-func GenerateInvite(st *store.MemoryStore) http.HandlerFunc {
+func GenerateInvite(st store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct { RoomID string `json:"roomId"` }
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.RoomID == "" {
@@ -29,7 +29,7 @@ func GenerateInvite(st *store.MemoryStore) http.HandlerFunc {
 	}
 }
 
-func JoinWithInvite(st *store.MemoryStore) http.HandlerFunc {
+func JoinWithInvite(st store.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req struct { Code string `json:"code"` }
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Code == "" {
