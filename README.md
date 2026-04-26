@@ -34,19 +34,19 @@ Optional for media testing:
 - `backend/` - Go API, realtime hub, signaling, moderation, persistence
 - `frontend/` - React UI, live-room UX, unit tests, Cypress tests
 - `backend/migrations/` - SQLite schema bootstrap
-- `Sprint1.md`, `Sprint2.md`, `Sprint3.md` - sprint documentation
+- `Sprint1.md`, `Sprint2.md`, `Sprint3.md`, `Sprint4.md` - sprint documentation
 
 ## Install Dependencies
 
 ### Backend
 ```powershell
-cd C:\Personal_projects\testsprint2\circleup\backend
+cd C:\Personal_projects\circleup\backend
 go mod tidy
 ```
 
 ### Frontend
 ```powershell
-cd C:\Personal_projects\testsprint2\circleup\frontend
+cd C:\Personal_projects\circleup\frontend
 cmd /c npm install
 ```
 
@@ -75,7 +75,7 @@ cmd /c npm install
 
 ### 1. Start the backend
 ```powershell
-cd C:\Personal_projects\testsprint2\circleup\backend
+cd C:\Personal_projects\circleup\backend
 $env:API_ADDR="0.0.0.0:8080"
 $env:DATABASE_URL="circleup.db"
 $env:JWT_SECRET="dev-secret"
@@ -86,7 +86,7 @@ go run ./cmd/api
 
 ### 2. Start the frontend over HTTP
 ```powershell
-cd C:\Personal_projects\testsprint2\circleup\frontend
+cd C:\Personal_projects\circleup\frontend
 $env:VITE_API_BASE_URL="http://localhost:8080"
 $env:VITE_WS_BASE_URL="ws://localhost:8080"
 $env:VITE_STUN_SERVER_URLS="stun:stun.l.google.com:19302"
@@ -98,7 +98,7 @@ Open:
 
 ### 3. Start the frontend over HTTPS for local media testing
 ```powershell
-cd C:\Personal_projects\testsprint2\circleup\frontend
+cd C:\Personal_projects\circleup\frontend
 $env:VITE_API_BASE_URL="http://localhost:8080"
 $env:VITE_WS_BASE_URL="ws://localhost:8080"
 $env:VITE_STUN_SERVER_URLS="stun:stun.l.google.com:19302"
@@ -161,7 +161,7 @@ Use the host machine IP instead of `localhost`.
 
 Example if the host machine IP is `192.168.0.157`:
 ```powershell
-cd C:\Personal_projects\testsprint2\circleup\frontend
+cd C:\Personal_projects\circleup\frontend
 $env:VITE_API_BASE_URL="http://192.168.0.157:8080"
 $env:VITE_WS_BASE_URL="ws://192.168.0.157:8080"
 $env:VITE_STUN_SERVER_URLS="stun:stun.l.google.com:19302"
@@ -181,32 +181,32 @@ Notes:
 
 ### Backend unit tests
 ```powershell
-cd C:\Personal_projects\testsprint2\circleup\backend
+cd C:\Personal_projects\circleup\backend
 go test ./...
 ```
 
 ### Backend focused verbose run
 ```powershell
-cd C:\Personal_projects\testsprint2\circleup\backend
+cd C:\Personal_projects\circleup\backend
 go test -v ./internal/handlers ./internal/realtime ./internal/store
 ```
 
 ### Frontend unit tests
 ```powershell
-cd C:\Personal_projects\testsprint2\circleup\frontend
+cd C:\Personal_projects\circleup\frontend
 cmd /c npm test
 ```
 
 ### Frontend production build
 ```powershell
-cd C:\Personal_projects\testsprint2\circleup\frontend
+cd C:\Personal_projects\circleup\frontend
 cmd /c npm run build
 ```
 
 ### Cypress end-to-end tests
 Start the frontend dev server first, then run:
 ```powershell
-cd C:\Personal_projects\testsprint2\circleup\frontend
+cd C:\Personal_projects\circleup\frontend
 cmd /c npm run cypress:run
 ```
 
